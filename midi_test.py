@@ -24,6 +24,7 @@ def main():
                         print(f"Foot Pedal: {'Pressed' if message.value >= 64 else 'Released'}")
                 elif message.type == 'note_on' or message.type == 'note_off':
                     if 36 <= message.note <= 43:  # Drum pads
+                        print(message.type)
                         pad_number = message.note - 35
                         status = 'Pressed' if message.type == 'note_on' and message.velocity > 0 else 'Released'
                         print(f"Drum Pad {pad_number}: {status} {message.velocity if message.velocity > 0 else ''}")

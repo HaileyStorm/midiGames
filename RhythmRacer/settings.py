@@ -1,0 +1,3 @@
+SCREEN_WIDTH = 1600
+SCREEN_HEIGHT = 1200
+BACKGROUND_COLOR = (100, 100, 100)  # Gray background for now
