@@ -16,6 +16,7 @@ class Track:
         self.generate_initial_track()
         self.checkpoint_distance = checkpoint_distance
         self.next_checkpoint = self.checkpoint_distance
+        self.checkpoint_y = None
 
     def generate_initial_track(self):
         for _ in range(int(self.screen_height / self.segment_length) + 2):  # Ensure track extends beyond screen
@@ -32,6 +33,15 @@ class Track:
             segment['y'] -= forward_movement
             segment['center'] -= lateral_movement
 
+        # Update checkpoint position
+        if self.checkpoint_y is not None:
+            self.checkpoint_y -= forward_movement
+
+        # Check if we've passed the checkpoint
+        if self.total_distance >= self.next_checkpoint:
+            self.next_checkpoint += self.checkpoint_distance
+            self.checkpoint_y = self.screen_height  # Place the new checkpoint at the bottom of the screen
+
         # Remove segments that are completely off-screen
         while self.segments and self.segments[0]['y'] + self.segment_length < 0:
             self.segments.pop(0)
@@ -39,10 +49,6 @@ class Track:
         # Add new segments to keep the track extending beyond the screen
         while self.segments[-1]['y'] < self.screen_height:
             self.add_segment()
-
-        # Update next checkpoint
-        if self.total_distance >= self.next_checkpoint:
-            self.next_checkpoint += self.checkpoint_distance
 
     def create_segment(self, y):
         if not self.segments:
@@ -100,12 +106,10 @@ class Track:
             self.draw_curve(screen, (255, 255, 255),
                             (right, y), (ctrl_right, mid_y), (next_right, next_y))
 
-            # Draw checkpoint if it's in this segment
-            if self.next_checkpoint - self.total_distance <= segment['y'] and \
-                    self.next_checkpoint - self.total_distance > next_segment['y']:
-                print("checkpoint")
-                checkpoint_y = self.screen_height - (segment['y'] - (self.next_checkpoint - self.total_distance))
-                pygame.draw.line(screen, (255, 255, 0), (0, checkpoint_y), (self.screen_width, checkpoint_y), 5)
+        # Draw checkpoint if it's on screen
+        if self.checkpoint_y is not None and 0 <= self.checkpoint_y <= self.screen_height:
+            pygame.draw.line(screen, (255, 255, 0), (0, self.checkpoint_y),
+                             (self.screen_width, self.checkpoint_y), 5)
 
     def draw_curve(self, screen, color, start, control, end):
         steps = 10
