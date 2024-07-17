@@ -4,7 +4,11 @@ from game import Game
 
 def main():
     pygame.init()
-    game = Game()
+
+    # For now, manually set the mode here
+    mode = 'timed'  # or 'timed'
+
+    game = Game(mode)
 
     running = True
     clock = pygame.time.Clock()

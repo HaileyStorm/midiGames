@@ -2,6 +2,7 @@ import pygame
 import math
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
+
 class Car:
     def __init__(self, x, y):
         self.x = x
@@ -11,7 +12,7 @@ class Car:
         self.max_speed = 15
         self.acceleration = 0.085
         self.deceleration = self.acceleration * 0.55
-        self.steering_speed = 0.0125
+        self.steering_speed = 0.01
         self.width = 40
         self.height = 70
 
@@ -30,9 +31,3 @@ class Car:
         self.angle += steering * self.steering_speed * self.speed
         # Limit angle to ±90 degrees (±π/2 radians) - no pointing backward
         self.angle = max(-math.pi / 2, min(math.pi / 2, self.angle))
-
-    def draw(self, screen):
-        car_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        pygame.draw.rect(car_surface, (255, 0, 0), (0, 0, self.width, self.height))
-        rotated_car = pygame.transform.rotate(car_surface, math.degrees(-self.angle))
-        screen.blit(rotated_car, rotated_car.get_rect(center=(self.x, self.y)))

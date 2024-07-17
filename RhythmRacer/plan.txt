@@ -1,5 +1,5 @@
 Project Structure:
-```
+
 racing_game/
 │
 ├── main.py
@@ -13,7 +13,6 @@ racing_game/
 └── assets/
     ├── images/
     └── sounds/
-```
 
 Outline/Plan:
 
@@ -65,3 +64,26 @@ Key Points for Reusability/Flexibility:
 4. Create modular graphics and sound systems that can be reused in other projects.
 
 This plan should allow us to create a basic but functional game within a couple of days, while also keeping the code organized and reusable for future projects. Let me know if you want to adjust anything in this plan before we start implementation.
+
+---
+
+Update:
+We have completed steps 1-4 of the plan. The basic game structure, MIDI controller input, car movement, and track implementation are functional. The track now features smooth curved lines and a two-level planning system for more natural curves. The car responds to MIDI input for steering, acceleration, and braking, and the track scrolls based on the car's movement.
+
+Next steps:
+Proceed with step 5: Add basic graphics. This will involve creating a graphics.py file to handle rendering, potentially improving the car sprite, and adding a basic GUI for speed, time, and position display.
+
+
+Code files to be presented with the plan:
+1. main.py
+2. game.py
+3. car.py
+4. track.py
+5. midi_controller.py
+6. settings.py
+
+Key code snippets to highlight:
+1. From midi_controller.py: The MIDIController class, especially the update and get_controls methods.
+2. From car.py: The Car class, particularly the update method showing how MIDI controls affect car behavior.
+3. From track.py: The Track class, highlighting the update, create_segment, and draw methods to show the curved track generation and rendering.
+4. From game.py: The Game class's update and render methods, demonstrating how the car, track, and MIDI controller interact.

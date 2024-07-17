@@ -4,7 +4,7 @@ import pygame
 
 
 class Track:
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, screen_width, screen_height, checkpoint_distance):
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.track_width = 350
@@ -14,6 +14,8 @@ class Track:
         self.direction_change_countdown = 0
         self.segment_length = 75
         self.generate_initial_track()
+        self.checkpoint_distance = checkpoint_distance
+        self.next_checkpoint = self.checkpoint_distance
 
     def generate_initial_track(self):
         for _ in range(int(self.screen_height / self.segment_length) + 2):  # Ensure track extends beyond screen
@@ -37,6 +39,10 @@ class Track:
         # Add new segments to keep the track extending beyond the screen
         while self.segments[-1]['y'] < self.screen_height:
             self.add_segment()
+
+        # Update next checkpoint
+        if self.total_distance >= self.next_checkpoint:
+            self.next_checkpoint += self.checkpoint_distance
 
     def create_segment(self, y):
         if not self.segments:
@@ -93,6 +99,13 @@ class Track:
             # Draw right curve
             self.draw_curve(screen, (255, 255, 255),
                             (right, y), (ctrl_right, mid_y), (next_right, next_y))
+
+            # Draw checkpoint if it's in this segment
+            if self.next_checkpoint - self.total_distance <= segment['y'] and \
+                    self.next_checkpoint - self.total_distance > next_segment['y']:
+                print("checkpoint")
+                checkpoint_y = self.screen_height - (segment['y'] - (self.next_checkpoint - self.total_distance))
+                pygame.draw.line(screen, (255, 255, 0), (0, checkpoint_y), (self.screen_width, checkpoint_y), 5)
 
     def draw_curve(self, screen, color, start, control, end):
         steps = 10
