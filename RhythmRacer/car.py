@@ -8,10 +8,10 @@ class Car:
         self.y = y
         self.angle = 0  # angle in radians
         self.speed = 0
-        self.max_speed = 7
+        self.max_speed = 15
         self.acceleration = 0.085
         self.deceleration = self.acceleration * 0.55
-        self.steering_speed = 0.015
+        self.steering_speed = 0.0125
         self.width = 40
         self.height = 70
 
