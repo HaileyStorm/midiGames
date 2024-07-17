@@ -35,12 +35,12 @@ class Track:
 
         # Update checkpoint position
         if self.checkpoint_y is not None:
-            self.checkpoint_y -= forward_movement
+            self.checkpoint_y += forward_movement
 
         # Check if we've passed the checkpoint
         if self.total_distance >= self.next_checkpoint:
             self.next_checkpoint += self.checkpoint_distance
-            self.checkpoint_y = self.screen_height  # Place the new checkpoint at the bottom of the screen
+            self.checkpoint_y = 0  # Place the new checkpoint at the top of the screen
 
         # Remove segments that are completely off-screen
         while self.segments and self.segments[0]['y'] + self.segment_length < 0:
@@ -108,8 +108,12 @@ class Track:
 
         # Draw checkpoint if it's on screen
         if self.checkpoint_y is not None and 0 <= self.checkpoint_y <= self.screen_height:
-            pygame.draw.line(screen, (255, 255, 0), (0, self.checkpoint_y),
-                             (self.screen_width, self.checkpoint_y), 5)
+            pygame.draw.line(screen, (255, 255, 0), (0, self.checkpoint_y), (self.screen_width, self.checkpoint_y),
+                             5)
+
+        # Reset checkpoint if it's gone off screen
+        if self.checkpoint_y is not None and self.checkpoint_y > self.screen_height:
+            self.checkpoint_y = None
 
     def draw_curve(self, screen, color, start, control, end):
         steps = 10

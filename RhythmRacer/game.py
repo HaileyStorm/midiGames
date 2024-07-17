@@ -52,7 +52,7 @@ class Game:
         self.total_distance += self.car.speed
 
         # Check for new checkpoint
-        if self.total_distance // self.checkpoint_distance > self.checkpoints:
+        if self.total_distance >= (self.checkpoints + 1) * self.checkpoint_distance + 1500:
             self.checkpoints += 1
             self.points += 100  # Bonus points for checkpoint
 
