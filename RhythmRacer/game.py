@@ -1,6 +1,8 @@
 import pygame
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR
 from midi_controller import MIDIController
+from car import Car
+from track import Track
 
 class Game:
     def __init__(self):
@@ -9,6 +11,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.midi_controller = MIDIController()
         self.midi_controller.connect()
+        self.car = Car(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.track = Track()
 
     def handle_event(self, event):
         # TODO: Implement event handling (will be expanded later)
@@ -18,15 +22,23 @@ class Game:
         self.midi_controller.update()
         controls = self.midi_controller.get_controls()
 
-        # TODO: Use controls to update game state
-        #print(
-        #    f"Steering: {controls['steering']:.2f}, Acceleration: {controls['acceleration']:.2f}, Brake: {controls['brake']}")
+        self.car.update(
+            steering=controls['steering'],
+            acceleration=controls['acceleration'],
+            brake=controls['brake']
+        )
+
+        if self.track.check_collision(self.car):
+            print("Collide")
+            # Handle collision (e.g., stop the car, reset position, etc.)
+            #self.car.speed = 0
 
     def render(self):
         self.screen.fill(BACKGROUND_COLOR)
-        # TODO: Add rendering of game objects
+        self.track.draw(self.screen)
+        self.car.draw(self.screen)
 
-        # Temporary: render control values on screen
+        # Render control values (as before)
         font = pygame.font.Font(None, 36)
         controls = self.midi_controller.get_controls()
         text = font.render(f"Steering: {controls['steering']:.2f}", True, (255, 255, 255))
@@ -35,3 +47,5 @@ class Game:
         self.screen.blit(text, (10, 50))
         text = font.render(f"Brake: {controls['brake']}", True, (255, 255, 255))
         self.screen.blit(text, (10, 90))
+        text = font.render(f"Speed: {self.car.speed}", True, (255, 255, 255))
+        self.screen.blit(text, (10, 130))
