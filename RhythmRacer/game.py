@@ -28,11 +28,11 @@ class Game:
             brake=controls['brake']
         )
 
-        if self.track.check_collision(self.car):
-            print("collide")
-        #    self.car.speed *= 0.9  # Slow down when off track
+        if self.track.check_off_track(self.car):
+            #print("collide")
+            self.car.speed *= 0.99  # Slow down when off track
 
-        self.track.update(self.car.speed)
+        self.track.update(self.car)
 
     def render(self):
         self.screen.fill(BACKGROUND_COLOR)

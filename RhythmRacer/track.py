@@ -1,11 +1,12 @@
 import pygame
 import random
+import math
 
 class Track:
     def __init__(self, screen_width, screen_height):
         self.screen_width = screen_width
         self.screen_height = screen_height
-        self.track_width = 300
+        self.track_width = 400
         self.segments = []
         self.total_distance = 0
         self.generate_initial_track()
@@ -14,28 +15,45 @@ class Track:
         for _ in range(20):  # Generate initial segments
             self.add_segment()
 
-    def add_segment(self):
-        if not self.segments:
-            center_x = self.screen_width // 2
-        else:
-            prev_center = self.segments[-1]['center']
-            center_x = max(self.track_width//2, min(self.screen_width - self.track_width//2,
-                           prev_center + random.randint(-50, 50)))
-        self.segments.append({
-            'center': center_x,
-            'y': len(self.segments) * 100  # Each segment is 100 pixels tall
-        })
+    def update(self, car):
+        # Calculate forward and lateral movement based on car angle and speed
+        forward_movement = math.cos(car.angle) * car.speed
+        lateral_movement = math.sin(car.angle) * car.speed
 
-    def update(self, speed):
-        self.total_distance += speed
+        self.total_distance += forward_movement
+
+        # Update all segment positions
+        for segment in self.segments:
+            segment['y'] -= forward_movement
+            segment['center'] -= lateral_movement
+
+        # Add new segments and remove old ones
         while self.total_distance >= 100:
             self.segments.pop(0)
             self.add_segment()
             self.total_distance -= 100
 
-        # Adjust all segment y-positions
-        for segment in self.segments:
-            segment['y'] -= speed
+        # Handle backward movement
+        while self.total_distance < 0:
+            self.segments.insert(0, self.create_segment(self.segments[0]['y'] - 100))
+            self.total_distance += 100
+            if len(self.segments) > 20:  # Maintain a reasonable number of segments
+                self.segments.pop()
+
+    def create_segment(self, y):
+        if not self.segments:
+            center_x = self.screen_width // 2
+        else:
+            prev_center = self.segments[0]['center']
+            center_x = max(self.track_width // 2, min(self.screen_width - self.track_width // 2,
+                                                      prev_center + random.randint(-30, 30)))
+        return {
+            'center': center_x,
+            'y': y
+        }
+
+    def add_segment(self):
+        self.segments.append(self.create_segment((len(self.segments) * 100) + self.total_distance))
 
     def draw(self, screen):
         for i, segment in enumerate(self.segments):
@@ -52,7 +70,7 @@ class Track:
                 pygame.draw.line(screen, (255, 255, 255), (left, y), (next_left, next_y), 2)
                 pygame.draw.line(screen, (255, 255, 255), (right, y), (next_right, next_y), 2)
 
-    def check_collision(self, car):
+    def check_off_track(self, car):
         bottom_segment = self.segments[0]
         left_bound = bottom_segment['center'] - self.track_width // 2
         right_bound = bottom_segment['center'] + self.track_width // 2

@@ -9,7 +9,7 @@ class Car:
         self.angle = 0  # angle in radians
         self.speed = 0
         self.max_speed = 7
-        self.acceleration = 0.1
+        self.acceleration = 0.085
         self.deceleration = self.acceleration * 0.55
         self.steering_speed = 0.015
         self.width = 40
@@ -28,6 +28,8 @@ class Car:
 
         # Update angle
         self.angle += steering * self.steering_speed * self.speed
+        # Limit angle to ±90 degrees (±π/2 radians) - no pointing backward
+        self.angle = max(-math.pi / 2, min(math.pi / 2, self.angle))
 
     def draw(self, screen):
         car_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
