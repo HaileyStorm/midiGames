@@ -1,60 +1,59 @@
 import pygame
-import math
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT
+import random
 
 class Track:
-    def __init__(self):
-        self.width = 100  # Width of the track
-        self.center_points = self.generate_track_points()
-        self.inner_points = self.generate_boundary(self.center_points, -self.width/2)
-        self.outer_points = self.generate_boundary(self.center_points, self.width/2)
+    def __init__(self, screen_width, screen_height):
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.track_width = 300
+        self.segments = []
+        self.total_distance = 0
+        self.generate_initial_track()
 
-    def generate_track_points(self):
-        # Generate a simple oval track
-        points = []
-        for i in range(0, 360, 5):
-            angle = math.radians(i)
-            x = SCREEN_WIDTH/2 + math.cos(angle) * (SCREEN_WIDTH/3)
-            y = SCREEN_HEIGHT/2 + math.sin(angle) * (SCREEN_HEIGHT/3)
-            points.append((x, y))
-        return points
+    def generate_initial_track(self):
+        for _ in range(20):  # Generate initial segments
+            self.add_segment()
 
-    def generate_boundary(self, center_points, offset):
-        boundary_points = []
-        for i in range(len(center_points)):
-            p1 = center_points[i]
-            p2 = center_points[(i+1) % len(center_points)]
-            dx = p2[0] - p1[0]
-            dy = p2[1] - p1[1]
-            length = math.sqrt(dx*dx + dy*dy)
-            ux = -dy/length
-            uy = dx/length
-            boundary_points.append((p1[0] + ux*offset, p1[1] + uy*offset))
-        return boundary_points
+    def add_segment(self):
+        if not self.segments:
+            center_x = self.screen_width // 2
+        else:
+            prev_center = self.segments[-1]['center']
+            center_x = max(self.track_width//2, min(self.screen_width - self.track_width//2,
+                           prev_center + random.randint(-50, 50)))
+        self.segments.append({
+            'center': center_x,
+            'y': len(self.segments) * 100  # Each segment is 100 pixels tall
+        })
+
+    def update(self, speed):
+        self.total_distance += speed
+        while self.total_distance >= 100:
+            self.segments.pop(0)
+            self.add_segment()
+            self.total_distance -= 100
+
+        # Adjust all segment y-positions
+        for segment in self.segments:
+            segment['y'] -= speed
 
     def draw(self, screen):
-        pygame.draw.lines(screen, (255, 255, 255), True, self.inner_points, 2)
-        pygame.draw.lines(screen, (255, 255, 255), True, self.outer_points, 2)
+        for i, segment in enumerate(self.segments):
+            left = segment['center'] - self.track_width // 2
+            right = segment['center'] + self.track_width // 2
+            y = self.screen_height - (segment['y'] - self.total_distance)
+
+            if i < len(self.segments) - 1:
+                next_segment = self.segments[i + 1]
+                next_left = next_segment['center'] - self.track_width // 2
+                next_right = next_segment['center'] + self.track_width // 2
+                next_y = self.screen_height - (next_segment['y'] - self.total_distance)
+
+                pygame.draw.line(screen, (255, 255, 255), (left, y), (next_left, next_y), 2)
+                pygame.draw.line(screen, (255, 255, 255), (right, y), (next_right, next_y), 2)
 
     def check_collision(self, car):
-        # Simple collision check: if car is outside the track boundaries
-        return not self.point_inside_track(car.x, car.y)
-
-    def point_inside_track(self, x, y):
-        return self.point_inside_polygon(x, y, self.outer_points) and not self.point_inside_polygon(x, y, self.inner_points)
-
-    def point_inside_polygon(self, x, y, polygon):
-        n = len(polygon)
-        inside = False
-        p1x, p1y = polygon[0]
-        for i in range(n + 1):
-            p2x, p2y = polygon[i % n]
-            if y > min(p1y, p2y):
-                if y <= max(p1y, p2y):
-                    if x <= max(p1x, p2x):
-                        if p1y != p2y:
-                            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                        if p1x == p2x or x <= xinters:
-                            inside = not inside
-            p1x, p1y = p2x, p2y
-        return inside
+        bottom_segment = self.segments[0]
+        left_bound = bottom_segment['center'] - self.track_width // 2
+        right_bound = bottom_segment['center'] + self.track_width // 2
+        return car.x - car.width / 2 < left_bound or car.x + car.width / 2 > right_bound

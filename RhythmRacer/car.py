@@ -9,35 +9,25 @@ class Car:
         self.angle = 0  # angle in radians
         self.speed = 0
         self.max_speed = 7
-        self.acceleration = 0.125
-        self.deceleration = 0.03333
+        self.acceleration = 0.1
+        self.deceleration = self.acceleration * 0.55
         self.steering_speed = 0.015
         self.width = 40
         self.height = 70
 
     def update(self, steering, acceleration, brake):
         # Update speed
-        acceleration_force = self.acceleration * acceleration
-        brake_force = self.deceleration * 3 if brake else 0
-
-        if self.speed > 0 or acceleration > brake:
-            net_force = acceleration_force - brake_force - self.deceleration
-            self.speed += net_force
-        else:
-            self.speed = 0
-
+        if acceleration > 0:
+            self.speed += self.acceleration * acceleration
+            self.speed = max(0, min(self.speed, self.max_speed))
+        if brake:
+            brake_force = self.deceleration * 2
+            if self.speed > 0:
+                self.speed = max(0.0, self.speed - brake_force)
         self.speed = max(0, min(self.speed, self.max_speed))
 
         # Update angle
         self.angle += steering * self.steering_speed * self.speed
-
-        # Update position
-        self.x += math.sin(self.angle) * self.speed
-        self.y -= math.cos(self.angle) * self.speed
-
-        # Keep the car on screen (temporary boundary check)
-        self.x = max(0, min(self.x, SCREEN_WIDTH))
-        self.y = max(0, min(self.y, SCREEN_HEIGHT))
 
     def draw(self, screen):
         car_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)

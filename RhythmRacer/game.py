@@ -11,8 +11,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.midi_controller = MIDIController()
         self.midi_controller.connect()
-        self.car = Car(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-        self.track = Track()
+        self.track = Track(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.car = Car(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100)
 
     def handle_event(self, event):
         # TODO: Implement event handling (will be expanded later)
@@ -29,9 +29,10 @@ class Game:
         )
 
         if self.track.check_collision(self.car):
-            print("Collide")
-            # Handle collision (e.g., stop the car, reset position, etc.)
-            #self.car.speed = 0
+            print("collide")
+        #    self.car.speed *= 0.9  # Slow down when off track
+
+        self.track.update(self.car.speed)
 
     def render(self):
         self.screen.fill(BACKGROUND_COLOR)
