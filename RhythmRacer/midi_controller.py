@@ -55,3 +55,8 @@ class MIDIController:
 
     def pad_just_released(self, pad_number):
         return not self.drum_pads[pad_number][0] and self.drum_pads[pad_number][2] == self.current_time - 1
+
+    def close(self):
+        if self.input_port:
+            self.input_port.close()
+            self.input_port = None

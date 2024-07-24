@@ -21,7 +21,7 @@ class Sound:
         self.global_volume = 0.5
         self.channel_volumes = {
             'effects': 1.0,
-            'music': 0.25,
+            'music': 0.1,
             'engine': 1.0,
             'braking': 0.7
         }
