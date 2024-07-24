@@ -1,3 +1,10 @@
+Next session we'll ...
+
+You remember how I started the session with a project overview that included an update and next steps, and key code pieces? Here's what I sent you (not including the code):
+
+You've been helping me with a project. Here's a summary:
+
+```
 Project Structure:
 
 racing_game/
@@ -38,21 +45,24 @@ Outline/Plan:
    - Add a basic GUI (speed, time, position)
 
 6. Implement game logic (2-3 messages)
-   - Add lap counting and timing
-   - Implement win/lose conditions
+   - Add checkpoint system and scoring
+   - Implement game modes (continuous and timed)
+   - Create win/lose conditions
 
 7. Add sound effects and music (1-2 messages)
    - Create sound.py to manage audio
-   - Add basic sound effects for acceleration, braking, collisions
+   - Add basic sound effects for checkpoints, game over, acceleration, braking
 
 8. Polish and refine (2-3 messages)
-   - Improve graphics and animations
+   - Implement a high score system
+   - Add a start menu with mode and difficulty selection
+   - Create game over / end of game screens
    - Balance game difficulty
-   - Add a simple menu system
 
-9. (Optional) Implement additional features if time allows (1-2 messages)
-   - Add power-ups or obstacles
-   - Implement a basic AI opponent
+9. (Optional) Implement additional features if time allows (2-3 messages)
+   - Add power-ups (utilizing drum pads)
+   - Implement obstacles
+   - Create basic AI cars
 
 End Goal:
 A simple but functional racing game where the player controls a car using the MIDI controller. The game should feature a curved track, basic graphics, sound effects, and a scoring system based on lap times.
@@ -68,22 +78,13 @@ This plan should allow us to create a basic but functional game within a couple 
 ---
 
 Update:
-We have completed steps 1-4 of the plan. The basic game structure, MIDI controller input, car movement, and track implementation are functional. The track now features smooth curved lines and a two-level planning system for more natural curves. The car responds to MIDI input for steering, acceleration, and braking, and the track scrolls based on the car's movement.
+We have completed steps 1-6 of the plan. The basic game structure, MIDI controller input, car movement, track implementation, basic graphics, and core game logic are now functional. We have implemented a checkpoint system, scoring mechanism, and two game modes (continuous and timed). The track features smooth curved lines with visible checkpoints, and the GUI displays relevant game information including speed, time, checkpoints, and score.
 
 Next steps:
-Proceed with step 5: Add basic graphics. This will involve creating a graphics.py file to handle rendering, potentially improving the car sprite, and adding a basic GUI for speed, time, and position display.
+Proceed with step 7: Add sound effects and music. This will involve creating a sound.py file to manage audio, and adding basic sound effects for checkpoints, game over, acceleration, and braking. Following that, we'll move on to step 8 to polish the game with a high score system, start menu, and end game screens, as well as balancing difficulty.
+```
 
+And here are some of the key files or pieces of files (important methods etc.):
 
-Code files to be presented with the plan:
-1. main.py
-2. game.py
-3. car.py
-4. track.py
-5. midi_controller.py
-6. settings.py
+Please let me know if you need me to provide any additional files/methods/other context. Otherwise, let's proceed to step 7. As we work, always lean toward showing only new/changed code and context, rather than complete files.
 
-Key code snippets to highlight:
-1. From midi_controller.py: The MIDIController class, especially the update and get_controls methods.
-2. From car.py: The Car class, particularly the update method showing how MIDI controls affect car behavior.
-3. From track.py: The Track class, highlighting the update, create_segment, and draw methods to show the curved track generation and rendering.
-4. From game.py: The Game class's update and render methods, demonstrating how the car, track, and MIDI controller interact.

@@ -1,6 +1,4 @@
-import pygame
 import math
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class Car:

@@ -5,6 +5,7 @@ from midi_controller import MIDIController
 from car import Car
 from track import Track
 from graphics import Graphics
+from sound import Sound
 
 
 class Game:
@@ -27,6 +28,8 @@ class Game:
         self.game_duration = 120  # 2 minutes for timed mode
         self.start_time = pygame.time.get_ticks()
         self.game_over_flag = False
+        self.sound = Sound()
+        self.sound.play_music()
 
     def handle_event(self, event):
         # TODO: Implement event handling (will be expanded later)
@@ -51,10 +54,17 @@ class Game:
 
         self.total_distance += self.car.speed
 
+        # Update engine sound
+        self.sound.update_engine_sound(self.controls['acceleration'])
+
+        # Update braking sound
+        self.sound.update_braking_sound(self.controls['brake'])
+
         # Check for new checkpoint
         if self.total_distance >= (self.checkpoints + 1) * self.checkpoint_distance + 1500:
             self.checkpoints += 1
             self.points += 100  # Bonus points for checkpoint
+            self.sound.play_sound('checkpoint')
 
         # Check for game over in timed mode
         if self.mode == 'timed':
@@ -83,6 +93,8 @@ class Game:
     def game_over(self):
         print(f"Game Over! Mode: {self.mode}, Distance: {self.total_distance:.1f}, Points: {int(self.points)}")
         self.game_over_flag = True
+        self.sound.stop_engine_sound()
+        self.sound.play_sound('game_over')
 
     def is_game_over(self):
         return self.game_over_flag
