@@ -75,17 +75,17 @@ class Game:
 
         if self.track.check_off_track(self.car):
             self.car.speed *= 0.99  # Slow down when off track
+            self.sound.update_gravel_sound(True)
         else:
             self.points += self.car.speed / 10  # Points based on speed when on track
+            self.sound.update_gravel_sound(False)
 
         self.track.update(self.car)
 
         self.total_distance += self.car.speed
 
-        # Update engine sound
+        # Update engine & braking sounds
         self.sound.update_engine_sound(self.controls['acceleration'])
-
-        # Update braking sound
         self.sound.update_braking_sound(self.controls['brake'])
 
         # Check for new checkpoint
@@ -137,8 +137,8 @@ class Game:
         score_text = font.render(f"Score: {int(self.points)}", True, (255, 255, 255))
         surface.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 300))
 
-        instruction_text = font.render("Press SPACE to return to menu", True, (255, 255, 255))
-        surface.blit(instruction_text, (SCREEN_WIDTH // 2 - instruction_text.get_width() // 2, 400))
+        #instruction_text = font.render("Press SPACE to return to menu", True, (255, 255, 255))
+        #surface.blit(instruction_text, (SCREEN_WIDTH // 2 - instruction_text.get_width() // 2, 400))
 
         return surface
 
@@ -147,3 +147,7 @@ class Game:
 
     def cleanup(self):
         self.midi_controller.close()
+        self.sound.stop_engine_sound()
+        self.sound.stop_music()
+        self.sound.update_braking_sound(False)
+        self.sound.update_braking_sound(False)

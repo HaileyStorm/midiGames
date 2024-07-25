@@ -10,20 +10,23 @@ class Sound:
             'game_over': pygame.mixer.Sound('assets/sounds/game_over.mp3'),
             'acceleration': pygame.mixer.Sound('assets/sounds/engine.wav'),
             'braking': pygame.mixer.Sound('assets/sounds/braking.wav'),
+            'gravel': pygame.mixer.Sound('assets/sounds/gravel.mp3'),
             'background_music': pygame.mixer.Sound('assets/sounds/background_music.wav')
         }
         self.channels = {
             'effects': pygame.mixer.Channel(0),
             'music': pygame.mixer.Channel(1),
             'engine': pygame.mixer.Channel(2),
-            'braking': pygame.mixer.Channel(3)
+            'braking': pygame.mixer.Channel(3),
+            'gravel': pygame.mixer.Channel(4)
         }
         self.global_volume = 0.5
         self.channel_volumes = {
             'effects': 1.0,
-            'music': 0.1,
-            'engine': 1.0,
-            'braking': 0.7
+            'music': 0.25,
+            'engine': 0.9,
+            'braking': 0.7,
+            'gravel': 1.0
         }
         self.engine_baseline_volume = 0.6667
         self.engine_sound_length = self.sounds['acceleration'].get_length()
@@ -31,6 +34,8 @@ class Sound:
         self.engine_last_resample_time = 0
         self.is_engine_playing = False
         self.is_braking_playing = False
+        self.is_gravel_playing = False
+        self._update_volumes()
 
     def set_global_volume(self, volume):
         self.global_volume = max(0.0, min(1.0, volume))
@@ -83,3 +88,11 @@ class Sound:
         elif not is_braking and self.is_braking_playing:
             self.channels['braking'].stop()
             self.is_braking_playing = False
+
+    def update_gravel_sound(self, is_off_track):
+        if is_off_track and not self.is_gravel_playing:
+            self.channels['gravel'].play(self.sounds['gravel'], loops=-1)
+            self.is_gravel_playing = True
+        elif not is_off_track and self.is_gravel_playing:
+            self.channels['gravel'].stop()
+            self.is_gravel_playing = False

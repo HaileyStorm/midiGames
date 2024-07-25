@@ -48,9 +48,10 @@ def main():
             game.render()
 
             if game.is_game_over():
+                game.cleanup()
                 screen.blit(game.game_over_screen, (0, 0))
                 pygame.display.flip()
-                pygame.time.wait(2000)  # Wait for 2 seconds before returning to menu
+                pygame.time.wait(3500)  # Wait before returning to menu
                 in_menu = True
 
         pygame.display.flip()
