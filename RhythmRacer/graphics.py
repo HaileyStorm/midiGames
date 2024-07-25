@@ -17,6 +17,8 @@ class Graphics:
     def render_car(self, screen, car):
         rotated_car = pygame.transform.rotate(self.car_image, -car.angle * 180 / 3.14159)
         screen.blit(rotated_car, rotated_car.get_rect(center=(car.x, car.y)))
+        if car.shield_active:
+            pygame.draw.circle(screen, (0, 255, 255), (int(car.x), int(car.y)), int(car.width * 1.15), 2)
 
     def render_track(self, screen, track):
         track.draw(screen)
@@ -26,7 +28,7 @@ class Graphics:
         line_height = 40
 
         # Render speed
-        speed_text = self.font.render(f"Speed: {car.speed * (160 / car.max_speed):.1f} km/h", True, (255, 255, 255))
+        speed_text = self.font.render(f"Speed: {car.speed * (160.0 / car.base_max_speed):.1f} km/h", True, (255, 255, 255))
         screen.blit(speed_text, (10, y_offset))
         y_offset += line_height
 
@@ -44,7 +46,7 @@ class Graphics:
         y_offset += line_height
 
         # Render distance (convert to km)
-        distance_km = distance * (160 / car.max_speed) / 1000
+        distance_km = distance * (160 / car.base_max_speed) / 1000
         distance_text = self.font.render(f"Distance: {distance_km:.2f} km", True, (255, 255, 255))
         screen.blit(distance_text, (10, y_offset))
         y_offset += line_height
@@ -53,6 +55,17 @@ class Graphics:
         accel_text = self.font.render(f"Accel: {acceleration:.2f}", True, (255, 255, 255))
         screen.blit(accel_text, (10, y_offset))
         y_offset += line_height
+
+        # Render damage
+        damage_text = self.font.render(f"Damage: {int(car.damage)}%", True, (255, 255, 255))
+        screen.blit(damage_text, (10, y_offset))
+        y_offset += line_height
+
+        # Render shield status
+        if car.shield_active:
+            shield_text = self.font.render("Shield Active", True, (0, 255, 255))
+            screen.blit(shield_text, (10, y_offset))
+            y_offset += line_height
 
         # Render points
         points_text = self.font.render(f"Points: {int(points)}", True, (255, 255, 255))

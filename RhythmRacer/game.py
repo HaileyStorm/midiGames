@@ -36,20 +36,24 @@ class Game:
         self.set_difficulty(difficulty)
         self.power_up_system = PowerUpSystem(difficulty)
         self.score_multiplier = 1
+        self.game_over_reason = None
 
     def set_difficulty(self, difficulty):
         if difficulty == 'easy':
             self.car.max_speed = 12
+            self.car.base_max_speed = 12
             self.car.acceleration = 0.07
             self.car.steering_speed = 0.008
             self.track.track_width = 400
         elif difficulty == 'medium':
             self.car.max_speed = 15
+            self.car.base_max_speed = 15
             self.car.acceleration = 0.085
             self.car.steering_speed = 0.01
             self.track.track_width = 350
         elif difficulty == 'hard':
             self.car.max_speed = 18
+            self.car.base_max_speed = 18
             self.car.acceleration = 0.1
             self.car.steering_speed = 0.012
             self.track.track_width = 300
@@ -64,7 +68,7 @@ class Game:
 
     def update(self):
         if self.game_over_flag:
-            self.game_over()
+            #self.game_over()
             return
 
         self.power_up_system.update(0.1, self)
@@ -72,17 +76,21 @@ class Game:
         self.midi_controller.update()
         self.controls = self.midi_controller.get_controls()
 
-        self.car.update(
-            steering=self.controls['steering'],
-            acceleration=self.controls['acceleration'],
-            brake=self.controls['brake']
-        )
+        # Update car and check for game over due to damage
+        if self.car.update(
+                steering=self.controls['steering'],
+                acceleration=self.controls['acceleration'],
+                brake=self.controls['brake']
+        ):
+            self.game_over_reason = "Your car has been destroyed!"
+            self.game_over()
+            return
 
         if self.track.check_off_track(self.car):
             self.car.speed *= 0.99  # Slow down when off track
             self.sound.update_gravel_sound(True)
         else:
-            self.points += self.car.speed / 10  # Points based on speed when on track
+            self.points += (self.car.speed / 10) * self.score_multiplier  # Points based on speed when on track
             self.sound.update_gravel_sound(False)
 
         self.track.update(self.car, self.sound)
@@ -115,6 +123,9 @@ class Game:
             if (pygame.time.get_ticks() - self.start_time) / 1000 >= self.game_duration:
                 self.game_over()
 
+    def set_score_multiplier(self, multiplier):
+        self.score_multiplier = multiplier
+
     def render(self):
         if self.game_over_screen and self.game_over_flag:
             self.screen.blit(self.game_over_screen, (0, 0))
@@ -133,10 +144,9 @@ class Game:
                 self.mode
             )
 
-            #self.graphics.render_power_ups(self.screen, self.power_up_system)
-
     def game_over(self):
-        print(f"Game Over! Mode: {self.mode}, Distance: {self.total_distance:.1f}, Points: {int(self.points)}")
+        print(f"Game Over! Reason: {self.game_over_reason}")
+        print(f"Mode: {self.mode}, Distance: {self.total_distance:.1f}, Points: {int(self.points)}")
         self.sound.stop_engine_sound()
         self.sound.play_sound('game_over')
         self.high_scores.add_score(self.mode, int(self.points), "Player")  # You can prompt for the player's name here
@@ -151,12 +161,12 @@ class Game:
         text = font.render("Game Over", True, (255, 255, 255))
         surface.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, 200))
 
+        reason_text = font.render(self.game_over_reason, True, (255, 255, 255))
+        surface.blit(reason_text, (SCREEN_WIDTH // 2 - reason_text.get_width() // 2, 250))
+
         font = pygame.font.Font(None, 36)
         score_text = font.render(f"Score: {int(self.points)}", True, (255, 255, 255))
         surface.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 300))
-
-        #instruction_text = font.render("Press SPACE to return to menu", True, (255, 255, 255))
-        #surface.blit(instruction_text, (SCREEN_WIDTH // 2 - instruction_text.get_width() // 2, 400))
 
         return surface
 
@@ -164,10 +174,13 @@ class Game:
         return self.game_over_flag
 
     def cleanup(self):
+        try:
+            for i in range(5, 9):
+                self.midi_controller.set_pad_light(i, 0)  # Turn off all power-up lights
+        except:
+            pass
         self.midi_controller.close()
         self.sound.stop_engine_sound()
         self.sound.stop_music()
         self.sound.update_braking_sound(False)
-        self.sound.update_braking_sound(False)
-        for i in range(5, 9):
-            self.midi_controller.set_pad_light(i, 0)  # Turn off all power-up lights
+        self.sound.update_gravel_sound(False)

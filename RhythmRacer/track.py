@@ -18,6 +18,14 @@ class Track:
         self.next_checkpoint = self.checkpoint_distance
         self.checkpoint_y = None
         self.power_ups = []
+        self.power_up_images = {
+            "Speed Boost": pygame.image.load('assets/images/speed_boost.png').convert_alpha(),
+            "Shield": pygame.image.load('assets/images/shield.png').convert_alpha(),
+            "Score Multiplier": pygame.image.load('assets/images/score_multiplier.png').convert_alpha(),
+            "Repair": pygame.image.load('assets/images/repair.png').convert_alpha()
+        }
+        # Scale images if necessary
+        self.power_up_images = {k: pygame.transform.scale(v, (30, 30)) for k, v in self.power_up_images.items()}
 
     def generate_initial_track(self):
         for _ in range(int(self.screen_height / self.segment_length) + 2):  # Ensure track extends beyond screen
@@ -140,8 +148,8 @@ class Track:
 
         # Draw power-ups
         for power_up in self.power_ups:
-            pygame.draw.circle(screen, (0, 255, 0),
-                               (int(power_up['x']), int(self.screen_height - power_up['y'])), 10)
+            image = self.power_up_images[power_up['power_up'].name]
+            screen.blit(image, (int(power_up['x'] - 15), int(self.screen_height - power_up['y'] - 15)))
 
     def draw_curve(self, screen, color, start, control, end):
         steps = 10

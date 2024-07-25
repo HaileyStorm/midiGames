@@ -1,13 +1,15 @@
 import random
 
 class PowerUp:
-    def __init__(self, name, duration, effect):
+    def __init__(self, name, duration, effect, deactivate_effect=None):
         self.name = name
         self.duration = duration
         self.effect = effect
+        self.deactivate_effect = deactivate_effect
         self.available = False
         self.active = False
         self.time_left = 0
+        self.effect_applied = False
 
     def collect(self):
         self.available = True
@@ -17,6 +19,7 @@ class PowerUp:
             self.active = True
             self.available = False
             self.time_left = self.duration
+            self.effect_applied = False
 
     def update(self, dt):
         if self.active:
@@ -24,13 +27,20 @@ class PowerUp:
             if self.time_left <= 0:
                 self.active = False
 
+
 class PowerUpSystem:
     def __init__(self, difficulty):
         self.power_ups = [
-            PowerUp("Speed Boost", 5, lambda car: setattr(car, 'max_speed', car.max_speed * 1.5)),
-            PowerUp("Shield", 7, lambda car: None),  # Implement shield logic in car.py
-            PowerUp("Score Multiplier", 10, lambda game: setattr(game, 'score_multiplier', 2)),
-            PowerUp("Repair", 1, lambda car: setattr(car, 'damage', max(0, car.damage - 50)))
+            PowerUp("Speed Boost", 15,
+                    lambda car: car.set_max_speed(1.25),
+                    lambda car: car.set_max_speed(1.0)),
+            PowerUp("Shield", 7,
+                    lambda car: car.activate_shield(),
+                    lambda car: car.deactivate_shield()),
+            PowerUp("Score Multiplier", 10,
+                    lambda game: game.set_score_multiplier(2),
+                    lambda game: game.set_score_multiplier(1)),
+            PowerUp("Repair", 1, lambda car: car.repair(50))
         ]
         self.spawn_interval = self.get_spawn_interval(difficulty)
         self.time_since_last_spawn = 0
@@ -51,8 +61,12 @@ class PowerUpSystem:
 
         for power_up in self.power_ups:
             power_up.update(dt)
-            if power_up.active:
+            if power_up.active and not power_up.effect_applied:
                 power_up.effect(game.car if power_up.name != "Score Multiplier" else game)
+                power_up.effect_applied = True
+            if not power_up.active and power_up.deactivate_effect and power_up.effect_applied:
+                power_up.deactivate_effect(game.car if power_up.name != "Score Multiplier" else game)
+                power_up.effect_applied = False
 
     def spawn_power_up(self, game):
         unavailable_power_ups = [pu for pu in self.power_ups if not pu.available and not pu.active]
