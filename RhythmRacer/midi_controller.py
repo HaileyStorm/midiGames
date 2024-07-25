@@ -4,6 +4,7 @@ import mido
 class MIDIController:
     def __init__(self):
         self.input_port = None
+        self.output_port = None
         self.steering = 0  # -1 to 1
         self.acceleration = 0  # 0 to 1
         self.brake = False
@@ -15,9 +16,13 @@ class MIDIController:
         input_ports = mido.get_input_names()
         if not input_ports:
             raise Exception("No MIDI input ports available")
+        output_ports = mido.get_output_names()
+        if not output_ports:
+            raise Exception("No MIDI input ports available")
 
         # Assuming the Nektar Impact LX61+ is the first device
         self.input_port = mido.open_input(input_ports[0])
+        self.output_port = mido.open_output(output_ports[1])
 
     def update(self):
         self.current_time += 1  # Simple frame counter as time
@@ -40,7 +45,7 @@ class MIDIController:
                     self.drum_pads[pad_number] = (is_pressed, velocity, last_press_time)
 
                     # Debugging print
-                    print(f"Pad {pad_number}: {'Pressed' if is_pressed else 'Released'}, Velocity: {velocity}")
+                    #print(f"Pad {pad_number}: {'Pressed' if is_pressed else 'Released'}, Velocity: {velocity}")
 
     def get_controls(self):
         return {
@@ -56,7 +61,15 @@ class MIDIController:
     def pad_just_released(self, pad_number):
         return not self.drum_pads[pad_number][0] and self.drum_pads[pad_number][2] == self.current_time - 1
 
+    def set_pad_light(self, pad_number, value):
+        if 5 <= pad_number <= 8:
+            cc = 119 - (pad_number - 5)  # CCs are 119, 118, 117, 116 for pads 5, 6, 7, 8
+            self.output_port.send(mido.Message('control_change', channel=4, control=cc, value=value))
+
     def close(self):
         if self.input_port:
             self.input_port.close()
             self.input_port = None
+        if self.output_port:
+            self.output_port.close()
+            self.output_port = None

@@ -17,12 +17,18 @@ class Track:
         self.checkpoint_distance = checkpoint_distance
         self.next_checkpoint = self.checkpoint_distance
         self.checkpoint_y = None
+        self.power_ups = []
 
     def generate_initial_track(self):
         for _ in range(int(self.screen_height / self.segment_length) + 2):  # Ensure track extends beyond screen
             self.add_segment()
 
-    def update(self, car):
+    def spawn_power_up(self, power_up):
+        segment = random.choice(self.segments)
+        x = random.uniform(segment['center'] - self.track_width // 4, segment['center'] + self.track_width // 4)
+        self.power_ups.append({'power_up': power_up, 'x': x, 'y': segment['y']})
+
+    def update(self, car, sound):
         forward_movement = math.cos(car.angle) * car.speed
         lateral_movement = math.sin(car.angle) * car.speed
 
@@ -49,6 +55,23 @@ class Track:
         # Add new segments to keep the track extending beyond the screen
         while self.segments[-1]['y'] < self.screen_height:
             self.add_segment()
+
+        # Update power-up positions
+        for power_up in self.power_ups:
+            power_up['y'] -= forward_movement
+            power_up['x'] -= lateral_movement
+
+        # Remove off-screen power-ups
+        self.power_ups = [pu for pu in self.power_ups if pu['y'] > -50]
+
+        # Check for power-up collection
+        #print(self.power_ups)
+        for power_up in self.power_ups:
+            if (abs(car.x - power_up['x']) < 30 and
+                    abs(self.screen_height - power_up['y'] - car.y) < 30):
+                power_up['power_up'].collect()
+                self.power_ups.remove(power_up)
+                sound.play_sound('power_up_collect')
 
     def create_segment(self, y):
         if not self.segments:
@@ -114,6 +137,11 @@ class Track:
         # Reset checkpoint if it's gone off screen
         if self.checkpoint_y is not None and self.checkpoint_y > self.screen_height:
             self.checkpoint_y = None
+
+        # Draw power-ups
+        for power_up in self.power_ups:
+            pygame.draw.circle(screen, (0, 255, 0),
+                               (int(power_up['x']), int(self.screen_height - power_up['y'])), 10)
 
     def draw_curve(self, screen, color, start, control, end):
         steps = 10

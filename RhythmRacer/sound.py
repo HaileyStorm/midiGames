@@ -11,7 +11,9 @@ class Sound:
             'acceleration': pygame.mixer.Sound('assets/sounds/engine.wav'),
             'braking': pygame.mixer.Sound('assets/sounds/braking.wav'),
             'gravel': pygame.mixer.Sound('assets/sounds/gravel.mp3'),
-            'background_music': pygame.mixer.Sound('assets/sounds/background_music.wav')
+            'background_music': pygame.mixer.Sound('assets/sounds/background_music.wav'),
+            'power_up_collect': pygame.mixer.Sound('assets/sounds/power_up_collect.mp3'),
+            'power_up_activate': pygame.mixer.Sound('assets/sounds/power_up_activate.mp3'),
         }
         self.channels = {
             'effects': pygame.mixer.Channel(0),

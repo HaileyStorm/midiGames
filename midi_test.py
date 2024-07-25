@@ -30,7 +30,7 @@ def main():
                         print(f"Drum Pad {pad_number}: {status} {message.velocity if message.velocity > 0 else ''}")
 
                 # Debug print for all messages
-                print(f"Raw message: {message}")
+                print(f"Raw message: {message}. {message.type if hasattr(message, 'type') else ''}, {message.value if hasattr(message, 'value') else ''}, {message.pitch if hasattr(message, 'pitch') else ''}, {message.velocity if hasattr(message, 'velocity') else ''}, {message.note if hasattr(message, 'note') else ''}, {message.control if hasattr(message, 'control') else ''}")
 
             time.sleep(0.001)  # Small sleep to prevent CPU overuse
     except KeyboardInterrupt:

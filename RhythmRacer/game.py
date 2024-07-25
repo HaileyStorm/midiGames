@@ -6,6 +6,7 @@ from track import Track
 from graphics import Graphics
 from sound import Sound
 from high_scores import HighScores
+from power_ups import PowerUpSystem
 
 
 class Game:
@@ -33,6 +34,8 @@ class Game:
         self.high_scores = HighScores()
         self.game_over_screen = None
         self.set_difficulty(difficulty)
+        self.power_up_system = PowerUpSystem(difficulty)
+        self.score_multiplier = 1
 
     def set_difficulty(self, difficulty):
         if difficulty == 'easy':
@@ -64,6 +67,8 @@ class Game:
             self.game_over()
             return
 
+        self.power_up_system.update(0.1, self)
+
         self.midi_controller.update()
         self.controls = self.midi_controller.get_controls()
 
@@ -80,7 +85,7 @@ class Game:
             self.points += self.car.speed / 10  # Points based on speed when on track
             self.sound.update_gravel_sound(False)
 
-        self.track.update(self.car)
+        self.track.update(self.car, self.sound)
 
         self.total_distance += self.car.speed
 
@@ -93,6 +98,17 @@ class Game:
             self.checkpoints += 1
             self.points += 100  # Bonus points for checkpoint
             self.sound.play_sound('checkpoint')
+
+        # Check for / perform power-up activation
+        for i in range(4):
+            if self.midi_controller.pad_just_pressed(i + 1):  # Pads 1-4
+                if self.power_up_system.activate_power_up(i):
+                    self.sound.play_sound('power_up_activate')
+
+        # Update power-up status lights
+        power_up_status = self.power_up_system.get_power_up_status()
+        for i, status in enumerate(power_up_status):
+            self.midi_controller.set_pad_light(i + 5, status)
 
         # Check for game over in timed mode
         if self.mode == 'timed':
@@ -116,6 +132,8 @@ class Game:
                 self.points, self.total_distance,
                 self.mode
             )
+
+            #self.graphics.render_power_ups(self.screen, self.power_up_system)
 
     def game_over(self):
         print(f"Game Over! Mode: {self.mode}, Distance: {self.total_distance:.1f}, Points: {int(self.points)}")
@@ -151,3 +169,5 @@ class Game:
         self.sound.stop_music()
         self.sound.update_braking_sound(False)
         self.sound.update_braking_sound(False)
+        for i in range(5, 9):
+            self.midi_controller.set_pad_light(i, 0)  # Turn off all power-up lights

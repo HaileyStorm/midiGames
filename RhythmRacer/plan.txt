@@ -12,11 +12,13 @@ racing_game/
 ├── main.py
 ├── game.py
 ├── car.py
+├── high_scores.py
 ├── track.py
 ├── midi_controller.py
 ├── graphics.py
 ├── sound.py
 ├── settings.py
+├── menu.py
 └── assets/
     ├── images/
     └── sounds/
@@ -60,8 +62,8 @@ Outline/Plan:
    - Balance game difficulty
 
 9. (Optional) Implement additional features if time allows (2-3 messages)
-   - Add power-ups (utilizing drum pads)
-   - Implement obstacles
+   - Add power-ups (collect on track, utilize drum pads for activation... maybe put top 4 in CC mode & use them for status lights of power-ups ... frequency controlled by difficulty)
+   - Implement obstacles (this presents an opportunity for a continuous mode end of game scenario - car damage ... regardless of mode car damage could impact speed/acceleration and one power-up could be damage healing ... frequency controlled by difficulty, probably also increasing over time in continuous mode)
    - Create basic AI cars
 
 End Goal:
@@ -85,7 +87,7 @@ Proceed with step 9. Note that AI cars will be the last feature implemented.
 
 And here are some of the key files or pieces of files (important methods etc.):
 
-Please let me know if you need me to provide any additional files/methods/other context. Otherwise, let's proceed to step 7. As we work, always lean toward showing only the newest changed/added code and context, rather than complete files.
+Please let me know if you need me to provide any additional files/methods/other context. Otherwise, let's proceed to step 9. As we work, always lean toward showing only the newest changed/added code and context, rather than complete files.
 
 
 Please update the plan as necessary according to our work today, especially the Update and Next steps. Also suggest any code I should include at the start the next session.
