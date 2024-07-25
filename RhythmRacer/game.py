@@ -151,7 +151,6 @@ class Game:
         self.sound.play_sound('game_over')
         self.high_scores.add_score(self.mode, int(self.points), "Player")  # You can prompt for the player's name here
         self.game_over_screen = self.create_game_over_screen()
-        self.midi_controller.close()
         self.game_over_flag = True
 
     def create_game_over_screen(self):
