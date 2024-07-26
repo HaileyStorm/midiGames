@@ -29,6 +29,7 @@ class Obstacle:
     def apply_effect(self, car):
         if self.type == 'oil':
             car.set_speed(min(car.speed, max(car.base_max_speed / 4.0, car.speed * 0.925)))
+            car.apply_oil_effect()
         elif self.type == 'rock':
             car.take_damage(10.0)
         elif self.type == 'debris':
