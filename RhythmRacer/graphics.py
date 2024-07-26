@@ -6,6 +6,17 @@ class Graphics:
     def __init__(self):
         self.font = pygame.font.Font(None, 36)
         self.car_image = self.load_car_image()
+        self.obstacle_images = {
+            'oil': pygame.image.load('assets/images/oil.png').convert_alpha(),
+            'rock': pygame.image.load('assets/images/rock.png').convert_alpha(),
+            'debris': pygame.image.load('assets/images/debris.png').convert_alpha()
+        }
+        self.obstacle_images = {
+            k: pygame.transform.scale(
+                v,
+                (60 if k in ['oil', 'debris'] else 30, 60 if k in ['oil', 'debris'] else 30)
+            ) for k, v in self.obstacle_images.items()
+        }
 
     def load_car_image(self):
         # Load and scale the car image
@@ -19,16 +30,25 @@ class Graphics:
         screen.blit(rotated_car, rotated_car.get_rect(center=(car.x, car.y)))
         if car.shield_active:
             pygame.draw.circle(screen, (0, 255, 255), (int(car.x), int(car.y)), int(car.width * 1.15), 2)
+        if car.damage_opacity > 0:
+            flash_surface = pygame.Surface((car.width * 2, car.height * 2), pygame.SRCALPHA)
+            flash_color = (255, 0, 0, car.damage_opacity)  # Red, with fading opacity
+            pygame.draw.rect(flash_surface, flash_color, flash_surface.get_rect())
+            screen.blit(flash_surface, rotated_car.get_rect(center=(car.x, car.y)))
 
     def render_track(self, screen, track):
         track.draw(screen)
+        for obstacle in track.obstacles:
+            screen.blit(self.obstacle_images[obstacle.type], (
+                int(obstacle.x - obstacle.width / 2), int(SCREEN_HEIGHT - obstacle.y - obstacle.height / 2)))
 
     def render_gui(self, screen, car, time_display, checkpoints, acceleration, points, distance, mode):
         y_offset = 10
         line_height = 40
 
         # Render speed
-        speed_text = self.font.render(f"Speed: {car.speed * (160.0 / car.base_max_speed):.1f} km/h", True, (255, 255, 255))
+        speed_text = self.font.render(f"Speed: {car.speed * (160.0 / car.base_max_speed):.1f} km/h", True,
+                                      (255, 255, 255))
         screen.blit(speed_text, (10, y_offset))
         y_offset += line_height
 

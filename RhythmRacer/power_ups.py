@@ -31,16 +31,16 @@ class PowerUp:
 class PowerUpSystem:
     def __init__(self, difficulty):
         self.power_ups = [
-            PowerUp("Speed Boost", 15,
-                    lambda car: car.set_max_speed(1.25),
+            PowerUp("Speed Boost", 22,
+                    lambda car: car.set_max_speed(1.35),
                     lambda car: car.set_max_speed(1.0)),
-            PowerUp("Shield", 7,
+            PowerUp("Shield", 18,
                     lambda car: car.activate_shield(),
                     lambda car: car.deactivate_shield()),
-            PowerUp("Score Multiplier", 10,
+            PowerUp("Score Multiplier", 30,
                     lambda game: game.set_score_multiplier(2),
                     lambda game: game.set_score_multiplier(1)),
-            PowerUp("Repair", 1, lambda car: car.repair(50))
+            PowerUp("Repair", 1, lambda car: car.repair(50.0))
         ]
         self.spawn_interval = self.get_spawn_interval(difficulty)
         self.time_since_last_spawn = 0

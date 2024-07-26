@@ -17,6 +17,7 @@ racing_game/
 ├── midi_controller.py
 ├── graphics.py
 ├── sound.py
+├── power_ups.py
 ├── settings.py
 ├── menu.py
 └── assets/
@@ -62,8 +63,8 @@ Outline/Plan:
    - Balance game difficulty
 
 9. (Optional) Implement additional features if time allows (2-3 messages)
-   - Add power-ups (collect on track, utilize drum pads for activation... maybe put top 4 in CC mode & use them for status lights of power-ups ... frequency controlled by difficulty)
-   - Implement obstacles (this presents an opportunity for a continuous mode end of game scenario - car damage ... regardless of mode car damage could impact speed/acceleration and one power-up could be damage healing ... frequency controlled by difficulty, probably also increasing over time in continuous mode)
+   - Add power-ups (collect on track, utilize bottom 4 drum pads for activation... put top 4 in CC mode & use them for status lights of power-ups ... frequency controlled by difficulty)
+   - Implement obstacles (this presents an opportunity for a continuous mode end of game scenario - car damage ... regardless of mode car damage should impact speed/acceleration [note that one power-up is damage healing and another a shield] ... frequency controlled by difficulty, probably also increasing over time in continuous mode... GUI shows damage, but I don't have an alternate image for the car so it would be great to have a visual indication of it drawn over the car or something)
    - Create basic AI cars
 
 End Goal:
@@ -79,15 +80,16 @@ This plan should allow us to create a basic but functional game within a couple 
 
 ---
 
-We have completed steps 1-8 of the plan. The basic game structure, MIDI controller input, car movement, track implementation, basic graphics, core game logic, sound effects, and music are now functional. We have implemented a checkpoint system, scoring mechanism, two game modes (continuous and timed), a high score system, a start menu with mode and difficulty selection, and game over screens. The track features smooth curved lines with visible checkpoints, and the GUI displays relevant game information including speed, time, checkpoints, and score.
+Update:
+We have completed steps 1-8 of the plan and have implemented power-ups. The basic game structure, MIDI controller input, car movement, track implementation, basic graphics, core game logic, sound effects, and music are now functional. We have implemented a checkpoint system, scoring mechanism, two game modes (continuous and timed), a high score system, a start menu with mode and difficulty selection, and game over screens. The track features smooth curved lines with visible checkpoints, and the GUI displays relevant game information including damage, speed, time, checkpoints, and score.
 
-Next steps:
-Proceed with step 9. Note that AI cars will be the last feature implemented.
+Next Steps:
+Continue with step 9. Start with obstacles; AI cars will be the last feature implemented and possibly another session.
 ```
 
 And here are some of the key files or pieces of files (important methods etc.):
 
-Please let me know if you need me to provide any additional files/methods/other context. Otherwise, let's proceed to step 9. As we work, always lean toward showing only the newest changed/added code and context, rather than complete files.
+Please let me know if you need me to provide any additional files/methods/other context. Otherwise, let's proceed to implementing obstacles. As we work, always lean toward showing only the newest changed/added code and context, rather than complete files; if I say I've corrected something you do not need to include that change in your response.
 
 
-Please update the plan as necessary according to our work today, especially the Update and Next steps. Also suggest any code I should include at the start the next session.
+Please update the plan as necessary according to our work today, especially the Update and Next Steps. Also suggest any code I should include at the start the next session.

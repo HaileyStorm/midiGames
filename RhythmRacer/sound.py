@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 from scipy import signal
 
+
 class Sound:
     def __init__(self):
         pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
@@ -14,6 +15,9 @@ class Sound:
             'background_music': pygame.mixer.Sound('assets/sounds/background_music.wav'),
             'power_up_collect': pygame.mixer.Sound('assets/sounds/power_up_collect.mp3'),
             'power_up_activate': pygame.mixer.Sound('assets/sounds/power_up_activate.mp3'),
+            'obstacle_hit': pygame.mixer.Sound('assets/sounds/obstacle_hit.mp3'),
+            'shield_hit': pygame.mixer.Sound('assets/sounds/shield_hit.mp3'),
+            'oil_hit': pygame.mixer.Sound('assets/sounds/oil_hit.mp3'),
         }
         self.channels = {
             'effects': pygame.mixer.Channel(0),

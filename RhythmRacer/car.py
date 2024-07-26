@@ -14,10 +14,12 @@ class Car:
         self.steering_speed = 0.01
         self.width = 40
         self.height = 70
-        self.damage = 0
-        self.max_damage = 100
+        self.damage = 0.0
+        self.max_damage = 100.0
         self.shield_active = False
         self.base_max_speed = self.max_speed
+        self.damage_opacity = 0  # overlay opacity for damage flash
+        self.damage_cooldown = 0  # prevents cascading opacity Events
 
     def update(self, steering, acceleration, brake):
         # Update speed
@@ -35,6 +37,12 @@ class Car:
         # Limit angle to ±90 degrees (±π/2 radians) - no pointing backward
         self.angle = max(-math.pi / 2, min(math.pi / 2, self.angle))
 
+        # Handle opacity decay
+        if self.damage_opacity > 0:
+            self.damage_opacity = max(0, self.damage_opacity - 15)  # Decays by 15 per frame
+        if self.damage_cooldown > 0:
+            self.damage_cooldown -= 0.1  # assuming 0.1 time step, as with power-ups
+
         # Check for game over due to damage
         if self.damage >= self.max_damage:
             return True  # Signal game over
@@ -43,6 +51,9 @@ class Car:
 
     def set_max_speed(self, multiplier):
         self.max_speed = self.base_max_speed * multiplier
+
+    def set_speed(self, speed):
+        self.speed = speed
 
     def activate_shield(self):
         self.shield_active = True
@@ -53,6 +64,11 @@ class Car:
     def take_damage(self, amount):
         if not self.shield_active:
             self.damage = min(self.max_damage, self.damage + amount)
+            if self.damage_cooldown <= 0:  # Only flash if we're not already flashing
+                self.damage_opacity = 255  # Full opacity
+                self.damage_cooldown = 0.5  # Half second cooldown
+            return True  # Successfully applied damage
+        return False     # Damage was blocked
 
     def repair(self, amount):
-        self.damage = max(0, self.damage - amount)
+        self.damage = max(0.0, self.damage - amount)

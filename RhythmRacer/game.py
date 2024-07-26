@@ -12,6 +12,8 @@ from power_ups import PowerUpSystem
 class Game:
     def __init__(self, mode='continuous', difficulty='medium'):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), display=1)
+        self.screen.fill(BACKGROUND_COLOR)
+        pygame.display.flip()
         pygame.display.set_caption("Rhythm Racer")
         self.clock = pygame.time.Clock()
         self.midi_controller = MIDIController()
@@ -25,8 +27,8 @@ class Game:
         self.total_distance = 0
         self.checkpoints = 0
         self.checkpoint_distance = 10000  # Distance between checkpoints
-        self.track = Track(SCREEN_WIDTH, SCREEN_HEIGHT, self.checkpoint_distance)
-        self.game_duration = 12#0  # 2 minutes for timed mode
+        self.track = Track(SCREEN_WIDTH, SCREEN_HEIGHT, self.checkpoint_distance, difficulty)
+        self.game_duration = 120  # 2 minutes for timed mode
         self.start_time = pygame.time.get_ticks()
         self.game_over_flag = False
         self.sound = Sound()
@@ -68,7 +70,6 @@ class Game:
 
     def update(self):
         if self.game_over_flag:
-            #self.game_over()
             return
 
         self.power_up_system.update(0.1, self)
@@ -93,7 +94,7 @@ class Game:
             self.points += (self.car.speed / 10) * self.score_multiplier  # Points based on speed when on track
             self.sound.update_gravel_sound(False)
 
-        self.track.update(self.car, self.sound)
+        self.track.update(self.car, self.sound, 0.1, self.mode)
 
         self.total_distance += self.car.speed
 
@@ -123,6 +124,12 @@ class Game:
             if (pygame.time.get_ticks() - self.start_time) / 1000 >= self.game_duration:
                 self.game_over()
 
+        # Check for game over due to damage
+        if self.car.damage >= self.car.max_damage:
+            self.game_over_reason = "Your car has been destroyed!"
+            self.game_over()
+            return
+
     def set_score_multiplier(self, multiplier):
         self.score_multiplier = multiplier
 
@@ -132,7 +139,7 @@ class Game:
         else:
             elapsed_time = (pygame.time.get_ticks() - self.start_time) / 1000
             if self.mode == 'timed':
-                time_display = max(0, self.game_duration - elapsed_time)
+                time_display = max(0.0, self.game_duration - elapsed_time)
             else:  # continuous mode
                 time_display = elapsed_time
 

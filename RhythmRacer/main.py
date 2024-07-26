@@ -2,12 +2,14 @@ import pygame
 from high_scores import HighScores
 from game import Game
 from menu import Menu
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR
 
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), display=1)
+    screen.fill(BACKGROUND_COLOR)
+    pygame.display.flip()
     pygame.display.set_caption("Rhythm Racer")
 
     menu = Menu(screen)

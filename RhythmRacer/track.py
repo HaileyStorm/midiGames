@@ -1,10 +1,11 @@
 import math
 import random
 import pygame
+from obstacles import Obstacle
 
 
 class Track:
-    def __init__(self, screen_width, screen_height, checkpoint_distance):
+    def __init__(self, screen_width, screen_height, checkpoint_distance, difficulty):
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.track_width = 350
@@ -26,6 +27,10 @@ class Track:
         }
         # Scale images if necessary
         self.power_up_images = {k: pygame.transform.scale(v, (30, 30)) for k, v in self.power_up_images.items()}
+        self.obstacles = []
+        self.set_difficulty(difficulty)
+        self.obstacle_spawn_timer = 0
+        self.continuous_mode_time = 0
 
     def generate_initial_track(self):
         for _ in range(int(self.screen_height / self.segment_length) + 2):  # Ensure track extends beyond screen
@@ -36,7 +41,16 @@ class Track:
         x = random.uniform(segment['center'] - self.track_width // 4, segment['center'] + self.track_width // 4)
         self.power_ups.append({'power_up': power_up, 'x': x, 'y': segment['y']})
 
-    def update(self, car, sound):
+    def set_difficulty(self, difficulty):
+        if difficulty == 'easy':
+            self.base_obstacle_spawn_interval = 15
+        elif difficulty == 'medium':
+            self.base_obstacle_spawn_interval = 10
+        else:  # hard
+            self.base_obstacle_spawn_interval = 7
+        self.obstacle_spawn_interval = self.base_obstacle_spawn_interval
+
+    def update(self, car, sound, dt, mode):
         forward_movement = math.cos(car.angle) * car.speed
         lateral_movement = math.sin(car.angle) * car.speed
 
@@ -73,13 +87,57 @@ class Track:
         self.power_ups = [pu for pu in self.power_ups if pu['y'] > -50]
 
         # Check for power-up collection
-        #print(self.power_ups)
         for power_up in self.power_ups:
             if (abs(car.x - power_up['x']) < 30 and
                     abs(self.screen_height - power_up['y'] - car.y) < 30):
                 power_up['power_up'].collect()
                 self.power_ups.remove(power_up)
                 sound.play_sound('power_up_collect')
+
+        # Update obstacles
+        for obstacle in self.obstacles:
+            obstacle.update(forward_movement, lateral_movement)
+
+        # Remove off-screen obstacles
+        self.obstacles = [obs for obs in self.obstacles if obs.y > -50]
+
+        # Update obstacle spawn timer
+        self.obstacle_spawn_timer += dt
+        if mode == 'continuous':
+            self.continuous_mode_time += dt
+            # Increase spawn frequency over time in continuous mode
+            self.obstacle_spawn_interval = max(
+                self.base_obstacle_spawn_interval * 0.5,
+                self.base_obstacle_spawn_interval * (1 - self.continuous_mode_time / 300000)
+                # Decrease interval over 5 minutes
+            )
+
+        # Spawn new obstacles
+        if self.obstacle_spawn_timer >= self.obstacle_spawn_interval:
+            self.spawn_obstacle()
+            self.obstacle_spawn_timer = 0
+
+        # Check for collisions with obstacles
+        for obstacle in self.obstacles[:]:  # Use a slice copy, since we might modify during iteration
+            if obstacle.collides_with(car, self.screen_height):
+                if obstacle.type == 'oil':
+                    sound.play_sound('oil_hit')  # Always play oil sound
+                else:
+                    if car.shield_active:
+                        sound.play_sound('shield_hit')
+                    else:
+                        sound.play_sound('obstacle_hit')
+
+                obstacle.apply_effect(car)
+
+                if obstacle.type != 'oil' and obstacle.type != 'debris':  # Don't remove debris or oil
+                    self.obstacles.remove(obstacle)
+
+    def spawn_obstacle(self):
+        segment = random.choice(self.segments)
+        x = random.uniform(segment['center'] - self.track_width // 4, segment['center'] + self.track_width // 4)
+        new_obstacle = Obstacle(x, segment['y'], Obstacle.generate_type())
+        self.obstacles.append(new_obstacle)
 
     def create_segment(self, y):
         if not self.segments:
